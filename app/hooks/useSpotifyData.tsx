@@ -1,5 +1,4 @@
 import { useSpotify } from "@/app/context";
-import * as React from "react";
 import useSWR from "swr";
 
 type TUseSpotifyData<T> = {

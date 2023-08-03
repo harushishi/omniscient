@@ -102,7 +102,6 @@ export const SpotifyProvider = (props: { children: React.ReactNode }) => {
   }, []);
 
   const onGetAccessToken = (token: string) => {
-    console.log("llego al getaccestoken");
     localStorage.setItem("spToken", token);
     setToken(token);
     setIsLoggedIn(true);

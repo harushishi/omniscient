@@ -5,9 +5,37 @@ import { Button } from "@/components/ui/button";
 import { useSpotify } from "@/app/context";
 
 //probar pasar por prop el hook y tener solo un componente para todo
+type Props = {
+  platform: string
+  isLoggedIn: boolean | null,
+  login: VoidFunction
+}
 
-export default function SpotifyCard() {
-  const { login, isLoggedIn } = useSpotify();
+const platformData = {
+  name: '',
+  logoUrl: '',
+  libraryUrl: ''
+}
+
+export default function PlatformCard({platform, isLoggedIn, login}: Props) {
+  //recibo las func de login y el estado por props.
+  switch (platform) {
+  case 'spotify':
+    platformData.name = 'Spotify'
+    platformData.logoUrl = '/Spotify.png'
+    platformData.libraryUrl = '/library?platform=spotify'
+    break;
+  case 'youtube':
+    platformData.name = 'Youtube Music'
+    platformData.logoUrl = '/YoutubeMusic.png'
+    platformData.libraryUrl = '/library?platform=youtube'
+    break;
+  case 'apple':
+    platformData.name = 'Apple Music'
+    platformData.logoUrl = '/AppleMusic.png'
+    platformData.libraryUrl = '/library?platform=apple'
+    break;
+  }
 
   return (
     //logout que limpie todo y me redireccione al dashboard
@@ -27,11 +55,11 @@ export default function SpotifyCard() {
         </button>
       </div>
       <div className="flex flex-col items-center pb-10">
-        <img className="w-60 h-60 mb-3 rounded-full shadow-lg" src="/Spotify.png" alt="Spotify" />
-        <h1 className="mb-1 text-2xl font-medium text-white ">Spotify</h1>
+        <img className="w-60 h-60 mb-3 rounded-full shadow-lg" src={platformData.logoUrl} alt="Spotify" />
+        <h1 className="mb-1 text-2xl font-medium text-white ">{platformData.name}</h1>
         {isLoggedIn ? (
           <Button variant="outline" size="default2" className="mt-10" asChild>
-            <Link href="/library?platform=spotify">Library</Link>
+            <Link href={platformData.libraryUrl}>Library</Link>
           </Button>
         ) : (
           <Button variant="outline" size="default2" className="mt-10" onClick={login}>
