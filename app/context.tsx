@@ -4,11 +4,12 @@ import { useSearchParams } from "next/navigation";
 import * as React from "react";
 import { Providers, TProviders } from "./types";
 
-type TSpotifyContext = {
+export type TSpotifyContext = {
   token: string;
   userId: string;
   isLoggedIn: boolean | null;
   login: VoidFunction;
+  logout: VoidFunction;
   setUserId: React.Dispatch<React.SetStateAction<TSpotifyContext["userId"]>>;
 };
 
@@ -19,6 +20,7 @@ export const SpotifyContext = React.createContext<TSpotifyContext>({
   userId: "",
   isLoggedIn: null,
   login: () => {},
+  logout: () => {},
   setUserId: () => {},
 });
 
@@ -46,6 +48,14 @@ export const SpotifyProvider = (props: { children: React.ReactNode }) => {
     document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
   }
 
+  async function logout() {
+    localStorage.removeItem("spToken");
+    localStorage.removeItem("spUserId");
+    setToken("");
+    setUserId("");
+    setIsLoggedIn(false);
+  }
+
   async function getAccessToken(code: string): Promise<string> {
     //me puedo traer tambien el userid. todo. y cambiar el nombre
     const verifier = localStorage.getItem("spVerifier") || "";
@@ -60,7 +70,9 @@ export const SpotifyProvider = (props: { children: React.ReactNode }) => {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: params,
-    });
+    }).then();
+
+    localStorage.removeItem("spVerifier");
 
     const { access_token } = await result.json();
     return access_token;
@@ -68,17 +80,21 @@ export const SpotifyProvider = (props: { children: React.ReactNode }) => {
   //este use effect es para despues del login
   React.useEffect(() => {
     const code = searchParams.get("code");
+    const token = localStorage.getItem("spToken");
     const provider = searchParams.get("provider")?.toLowerCase() as TProviders;
 
     if (!Providers.Spotify.match(provider)) {
       return;
     }
 
-    if (!code) {
+    if (code && !token) {
+      getAccessToken(code).then(onGetAccessToken);
       return;
     }
 
-    getAccessToken(code).then(onGetAccessToken);
+    if (token === undefined || token === "undefined") {
+      logout();
+    }
   }, []);
 
   //este useeffect es para levantar el token y distingue si esta logeado o no
@@ -107,7 +123,7 @@ export const SpotifyProvider = (props: { children: React.ReactNode }) => {
     setIsLoggedIn(true);
   };
 
-  const ctx = { token, userId, isLoggedIn, login, setUserId };
+  const ctx = { token, userId, isLoggedIn, login, logout, setUserId };
 
   return <SpotifyContext.Provider value={ctx}>{props.children}</SpotifyContext.Provider>;
 };
