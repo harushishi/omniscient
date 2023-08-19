@@ -35,7 +35,7 @@ export default function Navbar() {
           </button>
         </div>
         <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-cta">
-          <ul className="flex flex-col text-lg p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-black md:flex-row md:space-x-8 md:mt-0 md:border-0">
+          {/* <ul className="flex flex-col text-lg p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-black md:flex-row md:space-x-8 md:mt-0 md:border-0">
             <li>
               <Link
                 href="/"
@@ -64,7 +64,7 @@ export default function Navbar() {
                 Donate
               </Link>
             </li>
-          </ul>
+          </ul> */}
         </div>
       </div>
     </nav>

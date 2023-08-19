@@ -1,4 +1,4 @@
-import { useSpotify } from "@/app/context";
+import { useSpotify } from "@/app/SpotifyContext";
 import useSWR from "swr";
 
 type TUseSpotifyData<T> = {

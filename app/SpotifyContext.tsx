@@ -1,8 +1,9 @@
 "use client";
 import { generateCodeChallenge, generateCodeVerifier } from "@/app/utils/utils";
-import { useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 import { Providers, TProviders } from "./types";
+import { ISUser } from "@/lib/spotify";
 
 export type TSpotifyContext = {
   token: string;
@@ -13,7 +14,7 @@ export type TSpotifyContext = {
   setUserId: React.Dispatch<React.SetStateAction<TSpotifyContext["userId"]>>;
 };
 
-const clientId = "69a4b326ad514f1d8c8bda9929bad754"; // llevar a un env.
+const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENTID!;
 
 export const SpotifyContext = React.createContext<TSpotifyContext>({
   token: "",
@@ -28,6 +29,7 @@ export const SpotifyProvider = (props: { children: React.ReactNode }) => {
   const [token, setToken] = React.useState<TSpotifyContext["token"]>("");
   const [userId, setUserId] = React.useState<TSpotifyContext["userId"]>("");
   const [isLoggedIn, setIsLoggedIn] = React.useState<TSpotifyContext["isLoggedIn"]>(null);
+  const router = useRouter();
 
   const searchParams = useSearchParams();
 
@@ -56,7 +58,7 @@ export const SpotifyProvider = (props: { children: React.ReactNode }) => {
     setIsLoggedIn(false);
   }
 
-  async function getAccessToken(code: string): Promise<string> {
+  function getAccessToken(code: string): Promise<string | null> {
     //me puedo traer tambien el userid. todo. y cambiar el nombre
     const verifier = localStorage.getItem("spVerifier") || "";
     const params = new URLSearchParams();
@@ -66,61 +68,96 @@ export const SpotifyProvider = (props: { children: React.ReactNode }) => {
     params.append("redirect_uri", "http://localhost:3000/dashboard?provider=spotify");
     params.append("code_verifier", verifier);
 
-    const result = await fetch("https://accounts.spotify.com/api/token", {
+    const result = fetch("https://accounts.spotify.com/api/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: params,
-    }).then();
+    })
+      .then((res) => {
+        return res.json().then((body) => {
+          if (!res.ok) {
+            throw new Error(body.error_description);
+          }
 
-    localStorage.removeItem("spVerifier");
+          return body;
+        });
+      })
+      .then((body) => {
+        localStorage.removeItem("spVerifier");
 
-    const { access_token } = await result.json();
-    return access_token;
+        return body.access_token;
+      })
+      .catch((error) => {
+        console.error(error);
+        logout();
+        router.push("/dashboard");
+        return null;
+      });
+
+    return result;
   }
+
   //este use effect es para despues del login
   React.useEffect(() => {
     const code = searchParams.get("code");
     const token = localStorage.getItem("spToken");
-    const provider = searchParams.get("provider")?.toLowerCase() as TProviders;
 
+    console.log({ code }, { token });
+
+    const provider = searchParams.get("provider")?.toLowerCase() as TProviders;
     if (!Providers.Spotify.match(provider)) {
       return;
     }
 
     if (code && !token) {
+      console.log({ token });
       getAccessToken(code).then(onGetAccessToken);
       return;
     }
 
-    if (token === undefined || token === "undefined") {
+    if (!token) {
       logout();
+      return;
     }
   }, []);
 
   //este useeffect es para levantar el token y distingue si esta logeado o no
   React.useEffect(() => {
-    const spToken = localStorage.getItem("spToken");
+    const token = localStorage.getItem("spToken");
+    const userId = localStorage.getItem("spUserId");
 
-    if (!spToken) {
+    if (!token || token === "undefined") {
       return;
     }
 
-    setToken(spToken);
-    const userId = localStorage.getItem("userId");
-    setIsLoggedIn(true);
+    setToken(token);
 
-    if (!userId) {
+    if (!userId || userId === "undefined") {
       return;
     }
 
     setUserId(userId);
-    // setIsLoggedIn(true); este es el que queda cuando tambien contemple el userid
+    setIsLoggedIn(true);
   }, []);
 
-  const onGetAccessToken = (token: string) => {
+  const onGetAccessToken = async (token: string | null) => {
+    if (!token) {
+      return;
+    }
+
     localStorage.setItem("spToken", token);
     setToken(token);
-    setIsLoggedIn(true);
+
+    await fetch("https://api.spotify.com/v1/me", {
+      method: "GET",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+    })
+      .then((res) => res.json())
+      .then((data: ISUser) => {
+        localStorage.setItem("spUserId", data.id);
+        setUserId(data.id);
+        setIsLoggedIn(true);
+      });
   };
 
   const ctx = { token, userId, isLoggedIn, login, logout, setUserId };

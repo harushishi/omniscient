@@ -2,12 +2,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { TSpotifyContext, useSpotify } from "@/app/context";
+import { TYoutubeContext } from "@/app/YoutubeContext";
 
 //me paso el hook entero por props
 type Props = {
   platform: string;
-  usePlatform: TSpotifyContext;
+  usePlatform: TYoutubeContext;
 };
 
 const platformData = {

@@ -1,4 +1,5 @@
-import { SpotifyProvider } from "./context";
+import { SpotifyProvider } from "./SpotifyContext";
+import { YoutubeProvider } from "./YoutubeContext";
 import "./globals.css";
 import { Roboto_Mono } from "next/font/google";
 
@@ -9,7 +10,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={Roboto.className}>
         <main className="flex min-h-screen flex-col bg-black">
-          <SpotifyProvider>{children}</SpotifyProvider>
+          <SpotifyProvider>
+            <YoutubeProvider>{children}</YoutubeProvider>
+          </SpotifyProvider>
         </main>
       </body>
     </html>
