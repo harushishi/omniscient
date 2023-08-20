@@ -1,9 +1,10 @@
 import { useSpotify } from "@/app/SpotifyContext";
 import useSWR from "swr";
 import { axios } from "@/lib/axios";
+import { Paging, Playlist } from "spotify-types";
 
-type TUseSpotifyData<T> = {
-  data: T;
+type TUseSpotifyPlaylist = {
+  data: Paging<Playlist>;
   isLoading: boolean;
   error: any;
 };
@@ -17,14 +18,14 @@ const fetcher = (url: string, token: string, userId: string | null) => {
 
 // const fetcher = (url: string, token: string, userId: string | null) => {
 //   console.log({ url }, { token });
-//   return fetch(url, { headers: { Authorization: `Bearer ${token}` } }).then((res) => res.json()); //version vieja del fetcher usando fetch.
+//   return fetch(url, { headers: { Authorization: `Bearer ${token}` } }).then((res) => res.json());
 // };
 
 type TUseSpotifyDataProps = {
   url: string;
 };
 
-export function useSpotifyData<T>(options: TUseSpotifyDataProps): TUseSpotifyData<T> {
+export function useSpotifyData<T>(options: TUseSpotifyDataProps): TUseSpotifyPlaylist {
   const { url } = options;
   const { token, userId } = useSpotify();
   const { data, error, isLoading } = useSWR(token ? [url, token] : null, ([url, token]) => fetcher(url, token, userId));

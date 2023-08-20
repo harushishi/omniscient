@@ -1,12 +1,8 @@
-// import Axios from 'axios';
-// import storage from '../utils/storage';
+import Axios from 'axios';
 
-// const axios = Axios.create({
-//   baseURL: 'http://localhost:3001',
-//   headers: {
-//     // Accept: 'application/json',
-//   },
-// });
+const axios = Axios.create({
+  baseURL: 'https://api.spotify.com/v1',
+});
 
 // const AuthRequestInterceptor = (config: { headers: { Authorization: string; }; }) => {
 //   const token = storage.getToken();
@@ -48,4 +44,4 @@
 // axios.interceptors.request.use(AuthRequestInterceptor);
 // axios.interceptors.response.use(SuccessResponseInterceptor, ErrorResponseInterceptor);
 
-// export { axios };
+export { axios };
