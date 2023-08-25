@@ -1,19 +1,41 @@
 "use client";
+import { v4 as uuidv4 } from "uuid";
+import { useSpotifyPlaylist } from "@/app/hooks/useSpotifyPlaylist";
 import * as React from "react";
-import useSWR from "swr";
+import LibrarySearchBar from "./LibrarySearchBar";
 
-type Props = {
-  playlistId: string | null; //recibo el id de la playlist por parametro?
-};
+export default function PlaylistTable() {
+  const { data, error, isLoading } = useSpotifyPlaylist();
+  const [search, setSearch] = React.useState<string>("");
 
-export default function PlaylistTable({ playlistId }: Props) {
+  if (isLoading) return <div>Loading</div>;
+  if (error) return <div>Failed to load</div>;
+  if (!data) return <div>Failed to load</div>;
+
+  const renderSongs = data
+    .filter((item) => {
+      return search.toLowerCase() === "" ? item : item.name.toLowerCase().includes(search.toLowerCase());
+    })
+    .map((song) => (
+      <tr key={uuidv4()} className="bg-black border-t border-gray-800 hover:bg-gray-800 text-white">
+        <th scope="row" className="flex items-center px-6 py-4  blackspace-nowrap">
+          <img className="w-10 h-10 rounded" src={song.logoUrl} alt="Jese image" />
+          <div className="pl-3">{song.name}</div>
+        </th>
+        <td className="px-6 py-4">{song.artist}</td>
+        <td className="px-6 py-4">
+          <div className="flex items-center">{!song.album ? "" : song.album}</div>
+        </td>
+        <td className="px-6 py-4">
+          <div className="flex items-center">{song.duration}</div>
+        </td>
+      </tr>
+    ));
+
   return (
     <div>
       <div className="relative overflow-x-auto shadow-md">
         <div className="flex items-center justify-between py-4 bg-black dark:bg-gray-800 p-3">
-          <label htmlFor="table-search" className="sr-only">
-            Search
-          </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none ">
               <svg
@@ -32,12 +54,7 @@ export default function PlaylistTable({ playlistId }: Props) {
                 />
               </svg>
             </div>
-            <input
-              type="text"
-              id="table-search-users"
-              className="block p-2 pl-10 text-sm text-white border border-gray-800 rounded-lg w-80 bg-black focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Search a song"
-            />
+            <LibrarySearchBar setSearch={setSearch} search={search} />
           </div>
         </div>
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -57,25 +74,7 @@ export default function PlaylistTable({ playlistId }: Props) {
               </th>
             </tr>
           </thead>
-          <tbody>
-            <tr className="bg-black border-t border-gray-800 hover:bg-gray-800 text-white">
-              <th scope="row" className="flex items-center px-6 py-4  blackspace-nowrap">
-                <img
-                  className="w-10 h-10 rounded"
-                  src="https://lastfm.freetls.fastly.net/i/u/500x500/9be2323eb0c24a7fcaf0f458d4110b5f.jpg"
-                  alt="Jese image"
-                />
-                <div className="pl-3">Sin quererlo</div>
-              </th>
-              <td className="px-6 py-4">Eterna Inocencia</td>
-              <td className="px-6 py-4">
-                <div className="flex items-center">Las palabras y los rios.</div>
-              </td>
-              <td className="px-6 py-4">
-                <div className="flex items-center">3:48</div>
-              </td>
-            </tr>
-          </tbody>
+          <tbody>{renderSongs}</tbody>
         </table>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { SpotifyAuthProvider } from "./SpotifyAuthContext";
 import { SpotifyProvider } from "./SpotifyContext";
 import { YoutubeProvider } from "./YoutubeContext";
 import "./globals.css";
@@ -10,9 +11,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={Roboto.className}>
         <main className="flex min-h-screen flex-col bg-black">
-          <SpotifyProvider>
-            <YoutubeProvider>{children}</YoutubeProvider>
-          </SpotifyProvider>
+          <SpotifyAuthProvider>
+            <SpotifyProvider>
+              <YoutubeProvider>{children}</YoutubeProvider>
+            </SpotifyProvider>
+          </SpotifyAuthProvider>
         </main>
       </body>
     </html>

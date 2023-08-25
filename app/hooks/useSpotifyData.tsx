@@ -1,6 +1,6 @@
-import { useSpotify } from "@/app/SpotifyContext";
 import useSWR from "swr";
 import { axios } from "@/lib/axios";
+import { useSpotifyAuth } from "../SpotifyAuthContext";
 
 type TUseSpotifyData<T> = {
   data: T;
@@ -26,7 +26,7 @@ type TUseSpotifyDataProps = {
 
 export function useSpotifyData<T>(options: TUseSpotifyDataProps): TUseSpotifyData<T> {
   const { url } = options;
-  const { token, userId } = useSpotify();
+  const { token, userId } = useSpotifyAuth();
   const { data, error, isLoading } = useSWR(token ? [url, token] : null, ([url, token]) => fetcher(url, token, userId));
 
   return {

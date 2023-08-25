@@ -2,17 +2,18 @@ import { useSpotify } from "@/app/SpotifyContext";
 import useSWR from "swr";
 import { axios } from "@/lib/axios";
 import { Paging, Playlist } from "spotify-types";
+import { useSpotifyAuth } from "../SpotifyAuthContext";
 
 type TUseSpotifyPlaylist = {
-  data: Paging<Playlist>;
+  data: Playlist[];
   isLoading: boolean;
   error: any;
 };
 
-const fetcher = (url: string, token: string, userId: string | null) => {
+const fetcher = (url: string, token: string) => {
   return axios
     .get(url, { headers: { Authorization: "Bearer " + token } })
-    .then((res) => res.data)
+    .then((res) => res.data.items)
     .catch((error) => console.error(error));
 };
 
@@ -21,14 +22,11 @@ const fetcher = (url: string, token: string, userId: string | null) => {
 //   return fetch(url, { headers: { Authorization: `Bearer ${token}` } }).then((res) => res.json());
 // };
 
-type TUseSpotifyDataProps = {
-  url: string;
-};
-
-export function useSpotifyData<T>(options: TUseSpotifyDataProps): TUseSpotifyPlaylist {
-  const { url } = options;
-  const { token, userId } = useSpotify();
-  const { data, error, isLoading } = useSWR(token ? [url, token] : null, ([url, token]) => fetcher(url, token, userId));
+export function useSpotifyPlaylists(): TUseSpotifyPlaylist {
+  const { token, userId } = useSpotifyAuth();
+  const { data, error, isLoading } = useSWR(token ? [`/users/${userId}/playlists`, token] : null, ([url, token]) =>
+    fetcher(url, token)
+  );
 
   return {
     data,

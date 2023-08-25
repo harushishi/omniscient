@@ -5,8 +5,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default function Home() {
-  console.log(process.env.SPOTIFY_CLIENTID);
-  console.log(process.env.YOUTUBE_CLIENTID);
   return (
     <div>
       <Navbar />

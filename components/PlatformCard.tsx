@@ -2,12 +2,14 @@
 import * as React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { TYoutubeContext } from "@/app/YoutubeContext";
+import { TSpotifyAuthContext } from "@/app/SpotifyAuthContext";
+import { TSpotifyContext } from "@/app/SpotifyContext";
 
 //me paso el hook entero por props
 type Props = {
   platform: string;
-  usePlatform: TYoutubeContext;
+  usePlatform: TSpotifyAuthContext; // o el de youtube.
+  useContext: TSpotifyContext; // o el de youtube.
 };
 
 const platformData = {
@@ -16,8 +18,10 @@ const platformData = {
   libraryUrl: "",
 };
 
-export default function PlatformCard({ platform, usePlatform }: Props) {
-  const { login, logout, isLoggedIn } = usePlatform;
+export default function PlatformCard({ platform, usePlatform, useContext }: Props) {
+  const { login, logout } = usePlatform;
+  const { isLoggedIn } = useContext;
+
   switch (platform) {
     case "spotify":
       platformData.name = "Spotify";

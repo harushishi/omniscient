@@ -52,8 +52,6 @@ export const YoutubeProvider = (props: { children: React.ReactNode }) => {
     const paramToken = hashParams.get("access_token");
     const ytToken = localStorage.getItem("ytToken");
 
-    console.log(clientId);
-
     if (ytToken) {
       setToken(ytToken);
       setIsLoggedIn(true);

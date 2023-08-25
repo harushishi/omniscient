@@ -14,10 +14,12 @@
     "@types/node": "20.3.3",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
+    "@types/uuid": "^9.0.2",
     "autoprefixer": "10.4.14",
     "axios": "^1.4.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "date-fns": "^2.30.0",
     "dotenv": "^16.3.1",
     "eslint": "8.44.0",
     "eslint-config-next": "13.4.7",
@@ -31,6 +33,7 @@
     "tailwind-merge": "^1.14.0",
     "tailwindcss": "3.3.2",
     "tailwindcss-animate": "^1.0.6",
-    "typescript": "5.1.6"
+    "typescript": "5.1.6",
+    "uuid": "^9.0.0"
   }
 }
