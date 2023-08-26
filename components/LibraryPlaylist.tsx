@@ -2,7 +2,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { useSpotifyPlaylist } from "@/app/hooks/useSpotifyPlaylist";
 import * as React from "react";
-import LibrarySearchBar from "./LibrarySearchBar";
+import SearchBar from "./SearchBar";
 
 export default function PlaylistTable() {
   const { data, error, isLoading } = useSpotifyPlaylist();
@@ -14,7 +14,8 @@ export default function PlaylistTable() {
 
   const renderSongs = data
     .filter((item) => {
-      return search.toLowerCase() === "" ? item : item.name.toLowerCase().includes(search.toLowerCase());
+      const loweredCased = search.toLowerCase();
+      return !loweredCased ? item : item.name.toLowerCase().includes(loweredCased);
     })
     .map((song) => (
       <tr key={uuidv4()} className="bg-black border-t border-gray-800 hover:bg-gray-800 text-white">
@@ -54,7 +55,7 @@ export default function PlaylistTable() {
                 />
               </svg>
             </div>
-            <LibrarySearchBar setSearch={setSearch} search={search} />
+            <SearchBar setSearch={setSearch} search={search} />
           </div>
         </div>
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
