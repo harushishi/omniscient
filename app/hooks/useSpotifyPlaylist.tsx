@@ -1,17 +1,13 @@
 import { useSpotify } from "@/app/SpotifyContext";
 import useSWR from "swr";
 import { axios } from "@/lib/axios";
-import { PlaylistTrack } from "spotify-types";
 import { useSpotifyAuth } from "../SpotifyAuthContext";
-import { fromSpotifyToGenericTrack } from "../utils/mappers";
+import { PlaylistObjectFull } from "spotify-api";
 
-type TUseSpotifyPlaylistData = ReturnType<typeof fromSpotifyToGenericTrack>;
-
-const fetcher = (url: string, token: string, playlistId: string | null): Promise<TUseSpotifyPlaylistData> => {
+const fetcher = (url: string, token: string, playlistId: string | null): Promise<PlaylistObjectFull> => {
   return axios
     .get(`/playlists/${playlistId}`, { headers: { Authorization: "Bearer " + token } })
     .then((res) => res.data)
-    .then((data) => fromSpotifyToGenericTrack(data.tracks.items as PlaylistTrack[]))
     .catch((error) => {
       console.error(error);
       return [];

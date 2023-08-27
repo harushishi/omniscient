@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useSpotifyPlaylist } from "@/app/hooks/useSpotifyPlaylist";
 import * as React from "react";
 import SearchBar from "./SearchBar";
+import { millisecondsToMinutes } from "date-fns";
 
 export default function PlaylistTable() {
   const { data, error, isLoading } = useSpotifyPlaylist();
@@ -12,26 +13,31 @@ export default function PlaylistTable() {
   if (error) return <div>Failed to load</div>;
   if (!data) return <div>Failed to load</div>;
 
-  const renderSongs = data
+  const renderSongs = data.tracks.items
     .filter((item) => {
+      const track = item.track!;
       const loweredCased = search.toLowerCase();
-      return !loweredCased ? item : item.name.toLowerCase().includes(loweredCased);
+      return !loweredCased ? track : track.name.toLowerCase().includes(loweredCased);
     })
-    .map((song) => (
-      <tr key={uuidv4()} className="bg-black border-t border-gray-800 hover:bg-gray-800 text-white">
-        <th scope="row" className="flex items-center px-6 py-4  blackspace-nowrap">
-          <img className="w-10 h-10 rounded" src={song.logoUrl} alt="Jese image" />
-          <div className="pl-3">{song.name}</div>
-        </th>
-        <td className="px-6 py-4">{song.artist}</td>
-        <td className="px-6 py-4">
-          <div className="flex items-center">{!song.album ? "" : song.album}</div>
-        </td>
-        <td className="px-6 py-4">
-          <div className="flex items-center">{song.duration}</div>
-        </td>
-      </tr>
-    ));
+    .map((item) => {
+      const track = item.track!;
+      const artist = track.artists.map(({ name }) => name).join(" - ");
+      return (
+        <tr key={uuidv4()} className="bg-black border-t border-gray-800 hover:bg-gray-800 text-white">
+          <th scope="row" className="flex items-center px-6 py-4  blackspace-nowrap">
+            <img className="w-10 h-10 rounded" src={track.album.images[0].url} alt="Jese image" />
+            <div className="pl-3">{track.name}</div>
+          </th>
+          <td className="px-6 py-4">{artist}</td>
+          <td className="px-6 py-4">
+            <div className="flex items-center">{track.album.name}</div>
+          </td>
+          <td className="px-6 py-4">
+            <div className="flex items-center">{millisecondsToMinutes(track.duration_ms).toString()}</div>
+          </td>
+        </tr>
+      );
+    });
 
   return (
     <div>
