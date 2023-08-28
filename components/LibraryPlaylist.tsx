@@ -3,45 +3,36 @@ import { v4 as uuidv4 } from "uuid";
 import { useSpotifyPlaylist } from "@/app/hooks/useSpotifyPlaylist";
 import * as React from "react";
 import SearchBar from "./SearchBar";
-import { millisecondsToMinutes } from "date-fns";
+import TableRow from "./TableRow";
+import { useInView } from "react-intersection-observer";
+import { useIntersection } from "@mantine/hooks";
+import { Button } from "./ui/button";
 
 export default function PlaylistTable() {
-  const { data, error, isLoading } = useSpotifyPlaylist();
+  const { data, size, setSize, error, isLoading } = useSpotifyPlaylist();
   const [search, setSearch] = React.useState<string>("");
 
   if (isLoading) return <div>Loading</div>;
   if (error) return <div>Failed to load</div>;
   if (!data) return <div>Failed to load</div>;
 
-  const renderSongs = data.tracks.items
+  console.log({ data });
+
+  const renderSongs = data.items
     .filter((item) => {
       const track = item.track!;
       const loweredCased = search.toLowerCase();
       return !loweredCased ? track : track.name.toLowerCase().includes(loweredCased);
     })
-    .map((item) => {
-      const track = item.track!;
-      const artist = track.artists.map(({ name }) => name).join(" - ");
-      return (
-        <tr key={uuidv4()} className="bg-black border-t border-gray-800 hover:bg-gray-800 text-white">
-          <th scope="row" className="flex items-center px-6 py-4  blackspace-nowrap">
-            <img className="w-10 h-10 rounded" src={track.album.images[0].url} alt="Jese image" />
-            <div className="pl-3">{track.name}</div>
-          </th>
-          <td className="px-6 py-4">{artist}</td>
-          <td className="px-6 py-4">
-            <div className="flex items-center">{track.album.name}</div>
-          </td>
-          <td className="px-6 py-4">
-            <div className="flex items-center">{millisecondsToMinutes(track.duration_ms).toString()}</div>
-          </td>
-        </tr>
-      );
-    });
+    .map((item, index) => (
+      <tr key={uuidv4()} className="bg-black border-t border-gray-800 hover:bg-gray-800 text-white">
+        <TableRow track={item.track!} />
+      </tr>
+    ));
 
   return (
     <div>
-      <div className="relative overflow-x-auto shadow-md">
+      <div className="relative overflow-x-auto shadow-md flex-col text-center">
         <div className="flex items-center justify-between py-4 bg-black dark:bg-gray-800 p-3">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none ">
@@ -83,6 +74,13 @@ export default function PlaylistTable() {
           </thead>
           <tbody>{renderSongs}</tbody>
         </table>
+        {data.next ? (
+          <Button variant="ghostW" className="text-white justify-center" onClick={() => setSize(size + 1)}>
+            Load More
+          </Button>
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );

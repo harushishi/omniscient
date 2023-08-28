@@ -10,7 +10,7 @@ export default function SearchBar({ search, setSearch }: SearchBarProps) {
     <div>
       <input
         type="text"
-        id="table-search-users"
+        id="track-search"
         defaultValue={search}
         className="block p-2 pl-10 text-sm text-white border border-gray-800 rounded-lg w-80 bg-black focus:ring-blue-500 focus:border-blue-500"
         placeholder="Search a song..."
